@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raise Your Glass</title>
+    <style>
+        /* CSS Variables for easy color editing */
+        :root {
+            --background-gradient-start: #f78400;  /* Purple start of gradient */
+            --background-gradient-end: #eefa87;    /* Light blue end of gradient */
+            --button-color: rgba(255, 255, 255, 0.8);   /* Whitish button with slight transparency */
+            --button-hover-color: rgba(245, 245, 245, 0.9); /* Lighter whitish on hover */
+            --button-text-color: #9e5a00;          /* Deep purple text color */
+            --button-border-color: rgba(255, 255, 255, 0.5); /* Light whitish border */
+            --hover-shadow-color: rgba(155, 75, 0, 0.4); /* Shadow color with a light indigo tint */
+            --title-color: #ffffff;                /* Title text color */
+            --selected-language-color: linear-gradient(135deg, #ff7e5f, #feb47b); /* Gradient for selected language */
+        }
+    
+        /* Reset alapvető margók és paddingok */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--background-gradient-start), var(--background-gradient-end));
+            background-size: cover;
+            background-attachment: fixed;
+        }
+    
+        /* Container styling */
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+    
+        /* Card styling */
+        .card {
+            position: relative;
+            width: 300px;
+            height: 450px;
+            perspective: 1000px;
+            margin-top: 20px;
+        }
+    
+        .card > div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 3px solid var(--button-border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            font-size: 1.4em;
+            color: #000;
+            transition: transform 0.6s;
+        }
+    
+        .card .front {
+            background-color: #fff;
+        }
+    
+        .card .back {
+            transform: rotateY(180deg);
+            background: #eee url('pattern.png') center/cover; /* A mintás háttér */
+        }
+    
+        .card.flip .front {
+            transform: rotateY(180deg);
+        }
+    
+        .card.flip .back {
+            transform: rotateY(0deg);
+        }
+    
+        .logo {
+            width: 250px; /* Növeld meg a logó szélességét */
+            height: auto;
+        }
+    
+        .task-display {
+            font-size: 1.4em;
+            color: #000;
+            text-align: center;
+        }
+    
+        /* Next button */
+        .next-button {
+            background-color: var(--button-color);
+            color: var(--button-text-color);
+            padding: 15px 30px;
+            border: 2px solid var(--button-border-color);
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .next-button:hover {
+            background-color: var(--button-hover-color);
+            box-shadow: 0 6px 12px var(--hover-shadow-color);
+        }
+    
+        /* Back button */
+        .back-button {
+            background-color: var(--button-color);
+            color: var(--button-text-color);
+            padding: 15px 30px;
+            border: 2px solid var(--button-border-color);
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .back-button:hover {
+            background-color: var(--button-hover-color);
+            box-shadow: 0 6px 12px var(--hover-shadow-color);
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <!-- Task Card -->
+        <div class="card" id="taskCard">
+            <div class="front task-display" id="taskDisplay">Click "Next" to see a task!</div>
+            <div class="back">
+                <img src="beer.png" alt="Logo" class="logo" />
+            </div>
+        </div>
+        
+        <!-- Next Button -->
+        <button class="next-button" id="nextButton" onclick="showRandomTask()"></button>
+
+        <!-- Back Button -->
+        <button class="back-button" id="backButton" onclick="goBack()"></button>
+
+        <script>
+            // Nyelvi fordítások objektuma
+            const translations = {
+                en: {
+                    next: "Next",
+                    back: "Back"
+                },
+                hu: {
+                    next: "Következő",
+                    back: "Vissza"
+                },
+                sk: {
+                    next: "Ďalej",
+                    back: "Späť"
+                }
+            };
+            
+            let currentLanguage = 'en'; // Alapértelmezett nyelv: angol
+            
+            document.addEventListener("DOMContentLoaded", function() {
+                const savedLanguage = localStorage.getItem('language');
+                if (savedLanguage) {
+                    currentLanguage = savedLanguage; // Nyelv beállítása a localStorage alapján
+                }
+                updateButtonText(); // Gombok szövegének frissítése oldal betöltésekor
+            });
+            
+            // Gombok szövegének frissítése a kiválasztott nyelv alapján
+            function updateButtonText() {
+                document.getElementById('nextButton').textContent = translations[currentLanguage].next;
+                document.getElementById('backButton').textContent = translations[currentLanguage].back;
+            }
+        </script>
+        
+        <script>
+            const tasks = {
+                "en": [
+                "Do 10 push-ups",
+                "Try to lick your elbow",
+                "For the next 5 minutes, every time you say the word 'no', take a drink",
+                "You can only speak with an accent for 5 minutes",
+                "The player on your right can draw anything on your hand",
+                "Call your parents and tell them you're gay",
+                "Show everything in your wallet",
+                "Post your oldest selfie",
+                "Show your YouTube history",
+                "Show your Google search history",
+                "Take a photo of the player on your right. This will be your phone's wallpaper until tomorrow morning",
+                "Have you ever stolen anything from a store? If yes, drink",
+                "Sit on someone’s lap for a round. If not, drink twice",
+                "All girls drink",
+                "All boys drink",
+                "Everyone votes on who the biggest alcoholic is. That person drinks and picks another person to drink",
+                "Everyone votes on who is most likely to get arrested. That person drinks",
+                "Everyone votes on who is the biggest jerk. That person drinks",
+                "Anyone wearing jeans drinks",
+                "Anyone in sweatpants drinks",
+                "The next person can ask you a question. You can either tell the truth or refuse to answer and drink",
+                "Choose someone and guess the color of their underwear. If you're right, they drink; if not, you drink",
+                "All singles drink",
+                "Start naming colors in a circle until someone stumbles or repeats. That person drinks",
+                "Balance on one leg without holding onto anything. The last one to fall chooses someone to drink",
+                "The last person to use the bathroom drinks",
+                "You're Simon; the first to mess up drinks (Simon says game)",
+                "Pick a word, and everyone takes turns saying a rhyming word. The first one to mess up drinks",
+                "Flip a coin. If it's heads, you drink; if tails, everyone else drinks",
+                "You drink",
+                "Count to three and have a staring contest. The last one to blink chooses someone to drink",
+                "Anyone shorter than you drinks",
+                "Start by naming an animal. Keep going until someone stumbles or repeats an animal. That person drinks",
+                "Anyone wearing a button-up shirt drinks",
+                "Imitate another player. The first person to guess who you are chooses someone to drink",
+                "Everyone votes on who tries hardest to avoid drinking. That person drinks",
+                "Anyone who has ever snuck out of the house drinks",
+                "Tell a joke; if no one laughs, you drink; if someone laughs, they drink",
+                "Everyone votes on who is most likely to pass out by 10. That person drinks",
+                "Choose someone for a staring contest. The loser drinks",
+                "Tell a story, true or false. If someone guesses wrong, they drink. If everyone guesses right, you drink",
+                "Choose another player to 'marry.' Whenever one of you drinks, the other does too",
+                "If you've ever left home without underwear, drink",
+                "If you've ever fantasized about someone in this room, drink",
+                "If you've ever sent a nude picture, drink",
+                "If you've ever been stopped by the police but didn’t get a ticket, drink",
+                "The next person drinks",
+                "Everyone votes for someone to drink",
+                "Get out of jail free. You can use it or give it to someone else. One-time use to avoid drinking",
+                "The last one to clap drinks",
+                "Act out a scene from a famous movie. The first one to guess correctly chooses someone to drink",
+                "The person in front of you drinks",
+                "Keep your eyes closed until it's your turn again. If you open them, you drink",
+                "Anyone whose name starts with a vowel drinks",
+                "Start by naming a beer brand. Keep going until someone stumbles or repeats. That person drinks",
+                "Start by naming a country. Keep going until someone stumbles or repeats. That person drinks",
+                "Anyone born in the same month as you drinks",
+                "The last person to post on Instagram drinks",
+                "After this card is read, everyone plays quietly until it's your turn again. The first to laugh or speak drinks and ends the silence",
+                "Make a movement; the next person repeats all previous movements and adds one. Keep going until someone messes up. That person drinks",
+                "Anyone taller than you drinks",
+                "Choose an animal and act it out silently. The first one to guess correctly chooses someone to drink",
+                "Ask another player a true or false question about yourself. If they answer correctly, you drink; if not, they drink",
+                "Either take off a piece of clothing or drink",
+                "Anyone wearing the same color top as you drinks",
+                "Everyone votes on who is most likely to spend all their money on something silly",
+                "The next person can challenge you to anything. Either complete the challenge or drink",
+                "Choose someone to play rock-paper-scissors with. The loser drinks",
+                "Anyone with longer hair than you drinks",
+                "Choose a superhero and act it out silently. The first one to guess correctly chooses someone to drink",
+                "The person with the longest first name drinks. If there's a tie, everyone drinks",
+                "The person with the shortest last name drinks",
+                "Anyone wearing glasses drinks",
+                "Everyone names a name starting with 'B.' Keep going until someone stumbles or repeats. That person drinks",
+                "Anyone who worked out today drinks",
+                "Share an embarrassing experience; if no one laughs, you drink",
+                "Ask someone to recite a poem. If they can’t, they drink",
+                "Anyone who has traveled abroad drinks",
+                "Anyone wearing similar shoes to you drinks",
+                "Ask the person next to you what the worst food they've ever eaten is. If they can't answer, they drink",
+                "Ask someone who their favorite superhero is. If they can't answer, they drink",
+                "What was your best vacation? Share about it; if you can't, you drink",
+                "Ask the group who wants to learn something new. Anyone who says no drinks",
+                "Ask the person next to you what their strangest dream was. If they can't explain it, they drink",
+                "Ask who you hugged the most. If they can’t answer, they drink",
+                "What’s your best childhood memory? If you can’t share, you drink",
+                "Who do you respect the most and why? If you can't answer, you drink",
+                "What’s your favorite movie and why? If you can't say, you drink",
+                "What hobby or interest occupies you the most? If you don’t answer, you drink",
+                "You can take a break! You don’t drink for 3 rounds",
+                "Special right! The person next to you doesn’t drink until the next round",
+                "Your left neighbor doesn’t drink for 1 round",
+                "Choose someone to drink for you in the next round",
+                "Show the last 3 photos or videos on your phone",
+                "Show your most recent group message",
+                "Call the top number in your phone and chat with them for 30 seconds",
+                "Show everyone your phone's wallpaper",
+                "You can’t use your phone for the next 3 rounds! If you break this rule, you drink",
+                "What’s a nickname you have or had that few people know about?"
+            ],
+                "hu": [
+                "Csinálj 10 fekvőtámaszt",
+                "Próbáld meg megnyalni a könyököd",
+                "A következő 5 percben ahányszor kimondod a „nem” szót, annyiszor iszol",
+                "5 percig csak akcentussal beszélhetsz",
+                "A neked jobboldalon lévő játékos bármit rajzolhat a kezedre",
+                "Hívd fel a szüleidet, és mondd azt nekik, hogy homoszexuális vagy",
+                "Mutass meg mindent, ami a pénztárcádban van",
+                "Posztold ki a legrégibb szelfit magadról",
+                "Mutasd meg a YouTube előzményeidet",
+                "Mutasd meg a Google előzményeidet",
+                "Készíts egy fotót a neked jobbra lévő játékosról. Másnap reggelig ez legyen a háttérképed a telefonodon",
+                "Elloptál már valamit egy boltból? Ha igen, iszol",
+                "Ülj valaki ölébe egy körre. Ha nem, igyál kétszer",
+                "Minden lány iszik",
+                "Minden fiú iszik",
+                "Mindenki szavaz, ki a legnagyobb alkoholista. Az a személy iszik, és választ egy másikat, aki szintén iszik",
+                "Mindenki szavaz, ki az, akit legjobban valószínű, hogy letartóztatnak. Az a személy iszik",
+                "Mindenki szavaz, ki a legnagyobb seggfej. Az a személy iszik",
+                "Mindenki, aki farmert visel, iszik",
+                "Mindenki, aki melegitő visel, iszik",
+                "A következő személy kérdezhet tőled. Válaszolhatsz igazat, vagy megtagadhatod a választ és iszol",
+                "Válassz valakit, és tippeld meg, milyen színű az alsóneműje. Ha eltalálod, ő iszik, ha nem, te iszol",
+                "Minden szingli iszik",
+                "Kezdjetek el egy körbe színeket mondani addig amíg valaki elakad vagy megismétel egy színt. Az a személy iszik",
+                "Anélkül, hogy bármit megfognátok, egyensúlyozzatok egy lábon. Az utolsó, aki elesik, választ valakit, aki iszik",
+                "Aki legutóbb ment a WC-re, iszik",
+                "Te vagy Simon, az első, aki hibázik, iszik (Simon mondja játék)",
+                "Válassz egy szót, és mindenki sorban mondjon egy rímelő szót. Az első, aki hibázik, iszik",
+                "Dobj egy érmét. Ha fej, te iszol, ha írás, mindenki más iszik",
+                "Te iszol",
+                "Háromra tartsatok bámulós versenyt. Az utolsó, aki pislog, választ valakit, aki iszik",
+                "Mindenki, aki alacsonyabb nálad, iszik",
+                "Kezdd el, és nevezz meg egy állatot. Folytassátok, amíg valaki elakad vagy megismétli az állatot. Az a személy iszik",
+                "Mindenki, aki gombos inget visel, iszik",
+                "Utánozz egy másik játékost. Az első, aki kitalálja, ki vagy, választ valakit, aki iszik",
+                "Mindenki szavaz, ki próbálja meg legjobban elkerülni az ivást. Az a személy iszik",
+                "Mindenki, aki valaha kiszökött otthonról, iszik",
+                "Mondj egy viccet, ha senki nem nevet, te iszol, ha valaki nevet, ő iszik",
+                "Mindenki szavaz, ki fekszik le legvalószínűbb 10 előtt. Az a személy iszik",
+                "Válassz valakit, akivel bámulós versenyt tartasz. Az iszik aki veszít",
+                "Mesélj egy történetet, lehet igaz vagy hamis. Aki rosszul tippel, az iszik. Ha mindenki eltalálja, neked kell meginni az italodat",
+                "Válassz egy másik játékost, akivel *összeházasodtok*. Minden alkalommal, amikor iszik az egyikőtök, a másik is iszik",
+                "Ha valaha elhagytad az otthonod fehérnemű nélkül, igyál",
+                "Ha valaha fantáziáltál valakiről ebben a szobában, igyál",
+                "Ha valaha küldtél meztelen képet, igyál",
+                "Ha valaha megállítottak a rendőrök, de nem kaptál bírságot, igyál",
+                "A következő személy iszik",
+                "Mindenki szavaz valakire, aki iszik",
+                "Szabadjegy. Használhatod, vagy odaadhatod másnak. Egyszer használható ivás elkerülésére",
+                "Az utolsó, aki tapsol, iszik",
+                "Játssz el egy jelenetet egy híres filmből. Az első, aki helyesen kitalálja, választ valakit, aki iszik",
+                "Az előtted lévő iszik",
+                "Tartsd csukva a szemed, amíg újra rád nem kerül a sor. Ha kinyitod, iszol",
+                "Mindenki, akinek a neve magánhangzóval kezdődik, iszik",
+                "Kezdj el, és nevezz meg egy sörmárkát. Folytassátok, amíg valaki elakad vagy megismétel. Az a személy iszik",
+                "Kezdj el, és nevezz meg egy országot. Folytassátok, amíg valaki elakad vagy megismétel. Az a személy iszik",
+                "Mindenki, aki ugyanabban a hónapban született, mint te, iszik",
+                "A legutóbb Instagramra posztoló iszik",
+                "Miután ezt a kártyát felolvasták, mindenki csendben játszik, amíg újra rád nem kerül a sor. Az első, aki nevet vagy beszél, iszik, és véget vet a csendnek",
+                "Csinálj egy mozdulatot, a következő személy megismétli az összes előző mozdulatot és hozzáad egyet. Folytassátok, amíg valaki hibázik. Az a személy iszik",
+                "Mindenki, aki magasabb nálad, iszik",
+                "Válassz egy állatot, és játszd el beszéd nélkül. Az első, aki helyesen kitalálja, választ valakit, aki iszik",
+                "Tegyél fel egy igaz vagy hamis kérdést magadról egy másik játékosnak. Ha helyesen válaszol, te iszol, ha nem, ő iszik",
+                "Vagy leveszel egy ruhadarabot, vagy iszol",
+                "Mindenki, aki ugyanolyan színű felsőt visel, mint te, iszik",
+                "Mindenki szavaz, ki a legvalószínűbb, hogy butaságra költi minden pénzét",
+                "A következő személy bármire kihívhat téged. Vagy teljesíted a kihívást, vagy iszol",
+                "Válassz valakit, akivel kő-papír-ollót játszol. A vesztes iszik",
+                "Mindenki, akinek hosszabb haja van, mint neked, iszik",
+                "Válassz egy szuperhőst, és játszd el beszéd nélkül. Az első, aki helyesen kitalálja, választ valakit, aki iszik",
+                "A leghosszabb keresztnévvel rendelkező iszik. Ha döntetlen van, mindannyian isztok",
+                "A legrövidebb vezetéknévvel rendelkező iszik",
+                "Mindenki, aki szemüveget visel, iszik",
+                "Mindenki mondjon egy nevet, amely a *B* betűvel kezdődik. Folytassátok, amíg valaki elakad vagy megismétel. Az a személy iszik",
+                "Mindenki, aki edzett ma, iszik",
+                "Mesélj egy kínos élményt, ha senki nem nevet, te iszol",
+                "Kérj meg valakit, hogy mondjon egy verset. Ha nem tudja, ő iszik",
+                "Mindenki, aki már utazott külföldre, iszik",
+                "Mindenki, aki hasonló cipőt visel, mint te, iszik",
+                "Kérdezd meg a melletted ülőt, hogy mi a legrosszabb étel, amit valaha evett. Ha nem tud válaszolni, iszik",
+                "Kérdezd meg valakit, hogy ki a kedvenc szuperhőse. Ha nem tud válaszolni, ő iszik",
+                "Melyik volt a legjobb nyaralásod? Mesélj róla, ha nem tudod, iszol",
+                "Kérdezd meg a csoportot, hogy ki szeretne tanulni valami újat. Aki nemet mond, iszik",
+                "Kérdezd meg a melletted ülőt, hogy mi volt a legfurcsább álma. Ha nem tudja elmondani, iszik",
+                "Kérdezd meg, ki az, akit a legjobban megöleltél. Ha nem tudnak válaszolni, isznak",
+                "Mi a legjobb emléked a gyerekkorodból? Ha nem tudod megmondani, iszol",
+                "Ki az, akit a legjobban tisztelsz, és miért? Ha nem tudod válaszolni, iszol",
+                "Melyik a kedvenc filmed, és miért? Ha nem tudod, iszol",
+                "Milyen hobbi vagy érdeklődés foglalkoztat legjobban? Ha nem válaszolsz, iszol",
+                "Most megpihenhetsz! 3 körig nem iszol",
+                "Kivételes jog! A melletted lévő ember nem iszik a következő körig",
+                "A bal oldali szomszédod 1 körig nem iszik",
+                "Válassz valakit, aki helyetted iszik a következő körben",
+                "Mutasd meg az utolső 3 fotót vagy videót a telefonodban",
+                "Mutasd meg a legutóbbi üzenetedet a csoportnak",
+                "Hívd a legfelső számot a telefonodban, és beszélgess vele 30 másodpercig",
+                "Mutasd meg a telefonod háttérképét a többieknek",
+                "Nem használhatod a telefonod a következő 3 körig! Ha megszeged, iszol",
+                "Milyen beceneved van vagy volt régebben, amiről kevesen tudnak?"
+            ],
+                "sk": [
+                "Urob 10 klikov",
+                "Skús si lízať lakeť",
+                "Počas nasledujúcich 5 minút, vždy keď povieš slovo 'nie', si daj drink",
+                "Môžeš rozprávať len s akcentom 5 minút",
+                "Hráč po tvojej pravici môže nakresliť čokoľvek na tvoju ruku",
+                "Zavolaj rodičom a povedz im, že si gay",
+                "Ukáž všetko vo svojej peňaženke",
+                "Zverejni svoju najstaršiu selfie",
+                "Ukáž svoju históriu vyhľadávania v YouTube",
+                "Ukáž svoju históriu vyhľadávania v Google",
+                "Urob fotku hráča po tvojej pravici. Tá fotka bude tapeta na tvojom telefóne až do zajtra rána",
+                "Ukradol is niekedy niečo z obchodu? Ak áno, daj si drink",
+                "Sadni si niekomu na koleno na jedno kolo. Ak nie, daj si dva drinky",
+                "Všetky dievčatá pijú",
+                "Všetci chlapci pijú",
+                "Všetci hlasujú, kto je najväčší alkoholik. Ten, koho zvolia, pije a vyberie niekoho, kto tiež pije",
+                "Všetci hlasujú, kto je najpravdepodobnejšie, že ho zatknú. Ten, koho zvolia, pije",
+                "Všetci hlasujú, kto je najväčší idiot. Ten, koho zvolia, pije",
+                "Kto má na sebe džínsy, pije",
+                "Kto má na sebe tepláky, pije",
+                "Nasledujúci hráč ti môže položiť otázku. Môžeš povedať pravdu alebo odmietnuť odpovedať a piť",
+                "Vyber si niekoho a uhádni farbu jeho spodného prádla. Ak uhádneš správne, pije; ak nie, piješ ty",
+                "Všetci slobodní pijú",
+                "Začni menovať farby v kruhu, kým sa niekto nepomýli alebo nezopakuje. Ten, kto zlyhá, pije",
+                "Postav sa na jednej nohe bez držania sa o niečo. Posledný, kto spadne, vyberie niekoho, kto pije",
+                "Posledný, kto bol na toalete, pije",
+                "Si Simon; prvý, kto sa pomýli, pije (hra Simon hovorí)",
+                "Vyber si slovo a každý postupne povie slovo, ktoré sa rýmuje. Prvý, kto sa pomýli, pije",
+                "Hoď mincu. Ak padne orol, piješ; ak rub, všetci ostatní pijú",
+                "Piješ",
+                "Počítaj do troch a každý si musí nechať otvorené oči. Posledný, kto zamrkne, vyberie niekoho, kto pije",
+                "Kto je nižší ako ty, pije",
+                "Začni menovať zviera. Pokračuj, kým sa niekto nepomýli alebo nezopakuje zviera. Ten, kto zlyhá, pije",
+                "Kto má na sebe košeľu, pije",
+                "Napodobni iného hráča. Prvý, kto uhádne, kto si, vyberie niekoho, kto pije",
+                "Všetci hlasujú, kto sa najviac snaží vyhnúť pitiu. Ten, koho zvolia, pije",
+                "Kto niekedy odišiel z domu bez povolenia, pije",
+                "Povedz vtip; ak sa nikto nezasmial, piješ; ak sa niekto zasmeje, pije on",
+                "Všetci hlasujú, koho si myslíte, že stále chodí spať pred 22:00 Ten, koho zvolia, pije",
+                "Vyber si niekoho na pohľadovú súťaž. Ten kto prehrá, pije",
+                "Povedz príbeh, pravdivý alebo falošný. Ak niekto uhádne zle, pije. Ak všetci uhádnu správne, piješ ty",
+                "Vyber si iného hráča, s ktorým sa 'oženíš'. Kedykoľvek jeden z vás pije, druhý tiež",
+                "Ak si niekedy opustil dom bez spodného prádla, pij",
+                "Ak si niekedy fantazíroval o niekom v tejto miestnosti, pij",
+                "Ak si niekedy poslal nahú fotku, pij",
+                "Ak ťa niekedy zastavila polícia, ale nedostal si pokutu, pij",
+                "Nasledujúci hráč pije",
+                "Všetci hlasujú za niekoho, kto pije",
+                "Získaš špeciálny žetón! Môžeš ho použiť alebo ho dať niekomu inému. Jednorazové použitie na vyhnutie sa pitiu",
+                "Posledný, kto zatlieska, pije",
+                "Zahraj scénu z známeho filmu. Prvý, kto uhádne správne, vyberie niekoho, kto pije",
+                "Osoba pred tebou pije",
+                "Maj oči zatvorené, kým nebudeš mať ďalší ťah. Ak ich otvoríš, piješ",
+                "Kto má meno začínajúce na samohlásku, pije",
+                "Začni menovať značku piva. Pokračuj, kým sa niekto nepomýli alebo nezopakuje. Ten, kto zlyhá, pije",
+                "Začni menovať krajinu. Pokračuj, kým sa niekto nepomýli alebo nezopakuje. Ten, kto zlyhá, pije",
+                "Kto sa narodil v rovnakom mesiaci ako ty, pije",
+                "Posledný, kto zverejnil niečo na Instagrame, pije",
+                "Po prečítaní tejto karty, všetci hrajú ticho, kým nebudeš mať ďalší ťah. Prvý, kto sa zasmeje alebo prehovorí, pije a ukončuje ticho",
+                "Urob pohyb; nasledujúci hráč zopakuje všetky predchádzajúce pohyby a pridá jeden. Pokračuj, kým niekto nespraví chybu. Ten, kto zlyhá, pije",
+                "Kto je vyšší ako ty, pije",
+                "Vyber si zviera a ticho ho napodobni. Prvý, kto uhádne správne, vyberie niekoho, kto pije",
+                "Polož inému hráčovi pravdivú alebo falošnú otázku o sebe. Ak správne odpovie, piješ ty; ak nie, pije on",
+                "Vyzleč si jedno oblečenie alebo pij",
+                "Kto má na sebe rovnakú farbu trička ako ty, pije",
+                "Všetci hlasujú, kto je najviac pravdepodobné, že minie všetky svoje peniaze na niečo hlúpe",
+                "Nasledujúci hráč ťa môže vyzvať na čokoľvek. Buď splníš výzvu alebo piješ",
+                "Vyber si niekoho, s kým si zahráš kameň, papier, nožnice. Prehráva pije",
+                "Kto má dlhšie vlasy ako ty, pije",
+                "Vyber si superhrdinu a ticho ho napodobni. Prvý, kto uhádne správne, vyberie niekoho, kto pije",
+                "Osoba s najdlhším menom pije. Ak je remíza, všetci pijú",
+                "Osoba s najkratším priezviskom pije. Ak je remíza, všetci pijú",
+                "Kto nosí okuliare, pije",
+                "Všetci menujú meno začínajúce na 'B.' Pokračuj, kým sa niekto nepomýli alebo nezopakuje. Ten, kto zlyhá, pije",
+                "Kto cvičil dnes, pije",
+                "Podeľ sa o nepríjemnú skúsenosť; ak sa nikto nezasmial, piješ",
+                "Požiadaj niekoho, aby zarecitoval báseň. Ak to nedokáže, pije",
+                "Kto už cestoval do zahraničia, pije",
+                "Kto má podobné topánky ako ty, pije",
+                "Opýtaj sa osoby vedľa seba, aké je najhoršie jedlo, ktoré kedy jedol. Ak to nedokáže vysvetliť, pije",
+                "Opýtaj sa niekoho, kto je jeho obľúbený superhrdina. Ak to nedokáže povedať, pije",
+                "Aká bola tvoja najlepšia dovolenka? Podeľ sa o ňu; ak nemôžeš, piješ",
+                "Opýtaj sa skupiny, kto sa chce naučiť niečo nové. Kto povie nie, pije",
+                "Opýtaj sa osoby vedľa seba, aký bol jeho najčudnejší sen. Ak to nedokáže vysvetliť, pije",
+                "Opýtaj sa, koho si najviac objímal. Ak to nedokáže povedať, pije",
+                "Aká je tvoja najlepšia spomienka z detstva? Ak to nemôžeš povedať, piješ",
+                "Koho najviac rešpektuješ a prečo? Ak to nedokážeš povedať, piješ",
+                "Aký je tvoj obľúbený film a prečo? Ak to nemôžeš povedať, piješ",
+                "Aký koníček alebo záujem ťa najviac zamestnáva? Ak neodpovieš, piješ",
+                "Môžeš si oddýchnuť! Na ďalšie 3 kola nepiješ",
+                "Špeciál! Osoba vedľa teba nepije až do nasledujúceho kola",
+                "Tvoj ľavý sused nepije 2 kola",
+                "Vyber si niekoho, kto pije za teba v nasledujúcom kole",
+                "Ukáž posledné 3 fotografie alebo videá na svojom telefóne",
+                "Ukáž svoju najnovšiu skupinovú správu",
+                "Zavolaj na prvé číslo vo svojom telefóne a rozprávaj sa s ním 30 sekúnd",
+                "Ukáž všetkým tapetu na svojom telefóne",
+                "Nemôžeš používať telefón na nasledujúce 3 kola! Ak porušíš toto pravidlo, piješ",
+                "Akú prezývku máš alebo si mal, o ktorej vie len málo ľudí?"
+            ]
+        };
+
+        let availableTasks = []; // A megjeleníthető kérdések tárolása
+
+document.addEventListener("DOMContentLoaded", function() {
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+        currentLanguage = savedLanguage; // Set the language based on localStorage
+    } else {
+        currentLanguage = 'en'; // Default language
+    }
+    resetTasks(); // Initialize the task list
+});
+
+function resetTasks() {
+    availableTasks = [...tasks[currentLanguage]]; // Copy the tasks for the current language
+}
+
+function showRandomTask() {
+    if (availableTasks.length === 0) {
+        resetTasks(); // Reset the task list if all tasks were shown
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableTasks.length);
+    const taskDisplay = document.getElementById("taskDisplay");
+    
+    // Kártya animáció elindítása
+    const card = document.getElementById("taskCard");
+    card.classList.add("flip");
+    
+    // Szöveg frissítése az animáció után
+    setTimeout(() => {
+        taskDisplay.textContent = availableTasks[randomIndex];
+        availableTasks.splice(randomIndex, 1); // Remove the shown task from the list
+        card.classList.remove("flip");
+    }, 600);
+}
+
+function goBack() {
+    window.location.href = 'index.html'; // Cseréld le az index.html-re a főoldal URL-jét
+}
+</script>
+</div>
+</body>
+</html>

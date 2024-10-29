@@ -1,0 +1,254 @@
+<!-- HTML Code -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules</title>
+    <style>
+        /* CSS Variables for easy color editing */
+        :root {
+            --background-gradient-start: #f78400;
+            --background-gradient-end: #eefa87;
+            --button-color: rgba(255, 255, 255, 0.8);
+            --button-hover-color: rgba(245, 245, 245, 0.9);
+            --button-text-color: #9e5a00;
+            --button-border-color: rgba(255, 255, 255, 0.5);
+            --dot-color: #9e5a00;
+            --selected-dot-color: #feb47b;
+        }
+
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--background-gradient-start), var(--background-gradient-end));
+            background-size: cover;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .rule-content {
+            display: none;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .rule-content.active {
+            display: block;
+        }
+
+        .rule-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--dot-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: var(--selected-dot-color);
+        }
+
+        /* Instagram and Back Buttons */
+        .instagram-button, .back-button {
+            display: inline-block;
+            background-color: var(--button-color);
+            color: var(--button-text-color);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 2px solid var(--button-border-color);
+            margin-top: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .instagram-button:hover, .back-button:hover {
+            background-color: var(--button-hover-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Rules Card -->
+        <div class="card">
+            <div class="rule-content active" id="rule1">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule2">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule3">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule4">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule5">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule6">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule7">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+            <div class="rule-content" id="rule8">
+                <div class="rule-title"></div>
+                <p></p>
+            </div>
+        </div>
+
+        <!-- Dots Navigation -->
+        <div class="dots">
+            <div class="dot active" onclick="showRule(1)"></div>
+            <div class="dot" onclick="showRule(2)"></div>
+            <div class="dot" onclick="showRule(3)"></div>
+            <div class="dot" onclick="showRule(4)"></div>
+            <div class="dot" onclick="showRule(5)"></div>
+            <div class="dot" onclick="showRule(6)"></div>
+            <div class="dot" onclick="showRule(7)"></div>
+            <div class="dot" onclick="showRule(8)"></div>
+        </div>
+
+
+        
+        <!-- Back Button -->
+        <a href="index.html" class="back-button" id="backButton">Back</a>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                rule1: "Game Objective",
+                text1: "The goal is for players to complete various challenges that they randomly draw. If someone fails to complete the task, they must drink.",
+                rule2: "Number of Players",
+                text2: "A minimum of 2 players is required, but it’s more enjoyable in a group of 4-8 players.",
+                rule3: "Drawing Cards",
+                text3: "When a player presses the 'Next' button, the system randomly selects a card.",
+                rule4: "Completing the Task",
+                text4: "The player must try to complete the task shown on the card.",
+                rule5: "Variations",
+                text5: "Different themed card decks, such as 'Funny Tasks', 'Physical Challenges', or 'Creative Challenges'.",
+                rule6: "Creating Rules",
+                text6: "Introducing custom rules, such as 'If you can't complete the task, drink an entire drink!'",
+                rule7: "Redrawing Cards",
+                text7: "If a player feels that the drawn card is too difficult or does not want to complete the task, they can request to draw a new one. However, a new card can only be drawn once.",
+                rule8: "Warning",
+                text8: "Always ensure that you consume alcohol responsibly and adhere to local laws regarding alcohol consumption. If someone feels they cannot handle alcohol safely, do not hesitate to take a break or skip drawing cards.",
+                backButton: "Back"
+            },
+            sk: {
+                rule1: "Cieľ hry",
+                text1: "Cieľom je, aby hráči splnili rôzne výzvy, ktoré si náhodne vytiahnu. Ak niekto úlohu nesplní, musí piť.",
+                rule2: "Počet hráčov",
+                text2: "Minimálne 2, ale je zábavnejšie v skupine 4-8 hráčov.",
+                rule3: "Tiahnutie kariet",
+                text3: "Keď hráč stlačí tlačidlo „Ďalej“, systém náhodne vyberie kartu.",
+                rule4: "Plnenie úlohy",
+                text4: "Hráč sa musí pokúsiť splniť úlohu, ktorá je na karte.",
+                rule5: "Variácie",
+                text5: "Rôzne tematické balíčky kariet, ako napríklad „Vtipné úlohy“, „Fyzické výzvy“ alebo „Kreatívne výzvy“.",
+                rule6: "Vytváranie pravidiel",
+                text6: "Zavedenie vlastných pravidiel, napríklad „Ak úlohu nedokážeš splniť, vypi celý drink!",
+                rule7: "Nové tiahnutie kariet",
+                text7: "Ak hráč cíti, že vytiahnutá karta je príliš ťažká alebo nechce splniť úlohu, môže požiadať o nové. Novú kartu však môže vytiahnuť len raz.",
+                rule8: "Upozornenie",
+                text8: "Vždy dbaj na to, aby si zodpovedne konzumoval alkohol a dodržiaval miestne zákony týkajúce sa konzumácie alkoholu. Ak niekto cíti, že nedokáže alkohol bezpečne zvládnuť, neváhaj si dať prestávku alebo vynechať ťahanie kariet.",
+                backButton: "Späť"
+            },
+            hu: {
+                rule1: "Játék Célja",
+                text1: "A cél, hogy a játékosok teljesítsenek különböző kihívásokat, amelyeket véletlenszerűen húznak. Ha valaki nem teljesíti a feladatot, innia kell.",
+                rule2: "Játékosok Száma",
+                text2: "Minimum 2 fő, de élvezetesebb 4-8 fős csoportban.",
+                rule3: "Kártyahúzás",
+                text3: "Amikor egy játékos megnyomja a „Következő” gombot, a rendszer véletlenszerűen választ egy kártyát.",
+                rule4: "Feladat Teljesítése",
+                text4: "A játékosnak meg kell próbálnia teljesíteni a kártyán található feladatot.",
+                rule5: "Variációk",
+                text5: "Különböző tematikus kártyapaklik, mint pl. „Vicces feladatok”, „Fizikai kihívások”, vagy „Kreatív kihívások.",
+                rule6: "Szabályok Készítése",
+                text6: "Külön szabályok bevezetése, például „Ha a feladatot nem tudod megcsinálni, igyál egy egész italt!",
+                rule7: "Kártyák Újrahúzása",
+                text7: "Ha a játékos úgy érzi, hogy a húzott kártya túl nehéz vagy nem akarja teljesíteni a feladatot, kérheti, hogy húzhasson egy újabbat. Az új kártyát azonban csak egyszer lehet újrahúzni.",
+                rule8: "Figyelmeztetés",
+                text8: "Mindig figyeljetek arra, hogy felelősségteljesen fogyasszátok az alkoholt, és tartsátok be a helyi törvényeket az alkoholfogyasztásra vonatkozóan. Ha valaki úgy érzi, hogy nem tudja biztonságosan kezelni az alkoholt, ne habozzon szünetet tartani vagy kihagyni a kártyahúzást.",
+                backButton: "Vissza"
+            }
+        };
+
+        const userLang = localStorage.getItem('language') || 'en';
+
+        function setLanguageContent() {
+            for (let i = 1; i <= 8; i++) {
+                document.getElementById(`rule${i}`).querySelector('.rule-title').innerText = translations[userLang][`rule${i}`];
+                document.getElementById(`rule${i}`).querySelector('p').innerText = translations[userLang][`text${i}`];
+            }
+
+            // Set Back button text
+            document.getElementById('backButton').innerText = translations[userLang].backButton;
+        }
+
+        function showRule(ruleNumber) {
+            document.querySelectorAll('.rule-content').forEach((el, index) => {
+                el.classList.remove('active');
+                if (index + 1 === ruleNumber) {
+                    el.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.remove('active');
+                if (index + 1 === ruleNumber) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', setLanguageContent);
+    </script>
+</body>
+</html>
